@@ -27,3 +27,14 @@ def hash_md4_via_api(claim_id: str, timeout: int = 5, session: requests.Session 
 
 def hash_md4_local(claim_id: str) -> str:
     return hashlib.new("md4", claim_id.encode()).hexdigest()
+
+def hash_claim_ids(claim_ids: list[str]) -> dict[str, str]:
+    session = _build_session()
+    results = {}
+
+    for claim_id in claim_ids:
+        try:
+            results[claim_id] = hash_md4_via_api(claim_id, session=session)
+        except Exception:
+            results[claim_id] = hash_md4_local(claim_id)
+    return results
