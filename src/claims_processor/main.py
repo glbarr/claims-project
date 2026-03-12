@@ -24,12 +24,22 @@ def main() -> None:
         .transform(T.get_source_system_id)
         .transform(T.get_claim_type)
         .transform(T.get_claim_priority)
-        .select(
-            F.col(""),
-        )
         )
     
-    processed_claims.show()
+    claim_ids = [row.claim_id for row in processed_claims.select("claim_id").collect()]
+    hashes = hash_claim_ids(claim_ids)
+    hash_df = spark.createDataFrame(
+        [(k,v) for k, v in hashes.items()],
+        ["claim_id", "hash_id"] 
+    )
+
+    result = (
+        processed_claims
+        .join(hash_df, on="claim_id", how="left")
+        .transform(T.select_final_schema)
+    )
+    
+    result.show()
 
     spark.stop()
 

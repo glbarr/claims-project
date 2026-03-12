@@ -52,5 +52,13 @@ def get_claim_priority(df: DataFrame) -> DataFrame:
 
 def select_final_schema(df: DataFrame) -> DataFrame:
     return df.select(
-        F.col()
+        F.col("claim_id"),
+        F.col("policyholder_name"),
+        F.col("region"),
+        F.col("claim_type"),
+        F.col("claim_priority"),
+        F.col("claim_amount"),
+        F.col("claim_period"),
+        F.col("source_system_id"),
+        F.col("hash_id")
     )
