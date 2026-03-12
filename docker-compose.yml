@@ -1,0 +1,20 @@
+services:
+  app:
+    build: .
+    container_name: claims-processor
+    volumes:
+      - ./data:/app/data
+      - ./output:/app/output
+    environment:
+      - SPARK_LOCAL_IP=127.0.0.1
+    command: ["python", "-m", "claims_processor.main"]
+
+  test:
+    build: .
+    container_name: claims-processor-test
+    volumes:
+      - ./src:/app/src
+      - ./tests:/app/tests
+    environment:
+      - SPARK_LOCAL_IP=127.0.0.1
+    command: ["pytest", "tests/", "-v", "--tb=short"]
