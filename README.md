@@ -98,11 +98,11 @@ Due to the volume of data in this use-case, we brought the `claim_id` values to 
 This was the choice because it keeps all I/O outside our pipeline boundaries, the Spark transformations remain pure, we take DataFrames in and produce DataFrames out, not exposing the DAG to things like network timeout, the API going down or hitting request thresholds.
 
 #### Alternative approaches
-**`mapPartitions`**: Using connection pools, we could an HTTP session for each partition and do the hashing across the executors, this is more scalable for larger datasets, but would introduce I/O inside our transformations and make the pipeline harder to test and the issues mentioned above become a concearn.
+**`mapPartitions`**: Using connection pools, we could an HTTP session for each partition and do the hashing across the executors, this is more scalable for larger datasets, but would introduce I/O inside our transformations and make the pipeline harder to test and the issues mentioned above become a concern.
 
 **`Pre-computed lookup table`**: Hashing all possible `claim_id` values offline and storing them in a persistent lookup table, using it to join at runtime with zero HTTP calls.
 
-**`Local Hashing`**: With the constraint of doing the hashing through a specific API made this not the go-to choice, but in a real scenario, we could apply hashing algorithms locally without external dependencies that introduce I/O to our DAGs. This was actually used as a fallback to the API calls in the hashing algorithm, since MD4 is deterministic we can guarantee both applications produce ar identical.
+**`Local Hashing`**: With the constraint of doing the hashing through a specific API made this not the go-to choice, but in a real scenario, we could apply hashing algorithms locally without external dependencies that introduce I/O to our DAGs. This was actually used as a fallback to the API calls in the hashing algorithm, since MD4 is deterministic and we can guarantee both applications produce identical outputs.
 ##### MD4 Hash Algo
 MD4 is a deprecated and cryptographically broken hash algorithm. It is implemented here as the spec requires it. OpenSSL 3.x disables MD4 by default; the Docker image and CI pipeline enable it via a custom openssl_legacy.cnf that activates OpenSSL's legacy provider. The local fallback produces identical output to the API, verified by an integration test.
 
@@ -136,13 +136,13 @@ The pipeline produces `data/output/processed_claims.csv` with the following sche
 ## What I Would Do Differently at Scale
 
 ### Output Data
-At scale it is obvious to point that `toPandas()` and writing a csv is not the preffered option. At scale the ideal choice would be using spark's distrubuted nature coupled with an open-source (or managed) file system like DeltaLake or Iceberg to efficiently write and store the data and it's metadata.
+At scale it is obvious to point that `toPandas()` and writing a csv is not the prefered option. At scale the ideal choice would be using spark's distributed nature coupled with an open-source (or managed) file system like DeltaLake or Iceberg to efficiently write and store the data and its metadata.
 
 ### Unknown IDs
 At a production workflow we cannot have things mapped to "Unknown" with disregard. In a real use case where we need these dimensions that are still unexistent the go-to solution would be a warning flow to the data-owner and probably someone from the business side who owns the generation of these dimensions to actually create them and the "Unknown" data can be properly mapped.
 
 ### Joining
-Taking the context of the data, in a bigger scale scenario we would most likely do a broadcast join betweem the `claims` and the `policy_holder` tables,broadcasting the `policy_holder` table since it is the smaller table (slowly changing dimension table), always setting the approriate threshold for the broadcast depending on our cluster size ($) and SLA constraints, resorting back to sort-merge joins if both exceed those.
+Taking the context of the data, in a bigger scale scenario we would most likely do a broadcast join between the `claims` and the `policy_holder` tables,broadcasting the `policy_holder` table since it is the smaller table (slowly changing dimension table), always setting the appropriate threshold for the broadcast depending on our cluster size ($) and SLA constraints, resorting back to sort-merge joins if both exceed those.
 If both tables are big and they are frequently joined `bucketing` can be a valid strategy to avoid shuffling. But for it to be really worth it it would require an overall data-model analysis so we are not bucketing only for 2 tables and not considering the whole of the model.
 
 ### Hashing

@@ -41,8 +41,6 @@ def main() -> None:
     )
     result.toPandas().to_csv("data/output/processed_claims.csv", index=False)
 
-    result.show()
-
     spark.stop()
 
 
