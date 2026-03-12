@@ -5,6 +5,7 @@ services:
     volumes:
       - ./data:/app/data
       - ./output:/app/output
+      - ./src:/app/src
     environment:
       - SPARK_LOCAL_IP=127.0.0.1
     command: ["python", "-m", "claims_processor.main"]
