@@ -6,20 +6,20 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-arm64
+ENV OPENSSL_CONF=/app/openssl_legacy.cnf
 
 WORKDIR /app
 
-# Copy project definition and minimal package structure for pip
+# Copy OpenSSL config, project definition, and minimal package structure
+COPY openssl_legacy.cnf ./
 COPY pyproject.toml ./
 COPY src/claims_processor/__init__.py src/claims_processor/__init__.py
 
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir .[dev]
 
-# Copy everything else
 COPY . .
 
-# Install in editable mode with full source
 RUN pip install --no-cache-dir -e .
 
 CMD ["python", "-m", "claims_processor.main"]
