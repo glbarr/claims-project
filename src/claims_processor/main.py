@@ -8,6 +8,7 @@ def main() -> None:
     spark = SparkSession.builder \
         .master("local[*]") \
         .appName("ClaimsProcessor") \
+        .config("spark.sql.shuffle.partitions", "2")\
         .getOrCreate()
 
     claims = spark.read.csv("data/input/claims_data.csv", header=True, schema=CLAIMS_SCHEMA)
@@ -38,7 +39,8 @@ def main() -> None:
         .join(hash_df, on="claim_id", how="left")
         .transform(T.select_final_schema)
     )
-    
+    result.toPandas().to_csv("data/output/processed_claims.csv", index=False)
+
     result.show()
 
     spark.stop()
