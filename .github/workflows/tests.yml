@@ -24,6 +24,11 @@ jobs:
           distribution: temurin
           java-version: "21"
 
+      - name: Enable legacy OpenSSL providers (MD4)
+        run: |
+          echo -e "\n[provider_sect]\ndefault = default_sect\nlegacy = legacy_sect\n\n[default_sect]\nactivate = 1\n\n[legacy_sect]\nactivate = 1" | sudo tee -a /etc/ssl/openssl.cnf
+          sudo sed -i '/\[openssl_init\]/a providers = provider_sect' /etc/ssl/openssl.cnf
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
