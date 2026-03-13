@@ -1,7 +1,4 @@
 from decimal import Decimal
-from chispa.dataframe_comparer import assert_df_equality
-from pyspark.sql.types import StructType, StructField, StringType, DecimalType
-import pyspark.sql.functions as F
 
 from claims_processor.transformations import (
     join_claims_and_policy_holders,

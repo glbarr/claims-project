@@ -1,8 +1,4 @@
 from decimal import Decimal
-from unittest.mock import patch
-
-from pyspark.sql.types import StructType, StructField, StringType, DecimalType
-
 from claims_processor.schemas import CLAIMS_SCHEMA, POLICYHOLDER_SCHEMA
 import claims_processor.transformations as T
 

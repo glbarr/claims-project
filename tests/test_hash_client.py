@@ -1,6 +1,5 @@
 import pytest
 import requests
-import requests_mock as rm
 
 from claims_processor.hash_client import (
     hash_md4_via_api,
